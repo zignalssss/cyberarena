@@ -1,4 +1,4 @@
-import clientPromise from '../../../../lib/mongo';
+import clientPromise from '../../../../lib/mongo.js';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -15,3 +15,4 @@ export async function GET() {
 }
 
 // You can add other HTTP methods (POST, PUT, DELETE) as separate exported functions
+
