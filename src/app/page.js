@@ -1,6 +1,7 @@
 // pages/index.js
 "use client"
 import { useState } from 'react';
+import Team from './component/Team';
 
 export default function Home() {
 
@@ -29,20 +30,22 @@ export default function Home() {
     "Firewall",
     "Establish Clear IT Policies"
   ];
-  
-  const [selectedOptions, setSelectedOptions] = useState(Array(5).fill(''));
-  const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // เก็บข้อมูลที่เพิ่มแล้ว
 
+  const [selectedOptions, setSelectedOptions] = useState(Array(5).fill(''));
+  const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // Stores the added technologies
+
+  // Handle option change for a specific team
   const handleSelectChange = (index) => (event) => {
     const newSelectedOptions = [...selectedOptions];
     newSelectedOptions[index] = event.target.value;
     setSelectedOptions(newSelectedOptions);
   };
 
+  // Handle adding the selected technology to the team
   const handleAdd = async (index) => {
     const selectedTechnology = selectedOptions[index];
 
-    // POST ข้อมูลไปยัง API
+    // POST data to an API
     try {
       const res = await fetch('/api/team/updatedefcard', {
         method: 'POST',
@@ -59,13 +62,16 @@ export default function Home() {
       console.log(data.message);
 
       if (res.ok) {
+        // Update added technologies for the specific team
         const newAddedTechnologies = [...addedTechnologies];
         newAddedTechnologies[index] = [
-          ...newAddedTechnologies[index], 
+          ...newAddedTechnologies[index],
           selectedTechnology
         ];
 
         setAddedTechnologies(newAddedTechnologies);
+
+        // Clear the selected option
         setSelectedOptions((prev) => {
           const newSelectedOptions = [...prev];
           newSelectedOptions[index] = '';
@@ -77,12 +83,10 @@ export default function Home() {
     }
   };
 
- 
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="h-dvh grid grid-rows-4 bg-gray-100 p-8">
       {/* Main container */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 row-span-2 gap-4">
         
         {/* Center Card */}
         <div className="col-span-1 flex justify-center items-center">
@@ -124,16 +128,6 @@ export default function Home() {
               <span>0 +</span>
             </li>
           </ul>
-
-          {/* Numbered List */}
-          {/* <ul className="grid grid-cols-2 gap-2 mt-6 text-black">
-            {Array.from({ length: 23 }).map((_, idx) => (
-              <li key={idx} className="flex justify-between">
-                <span>{idx + 1} :</span>
-                <span>Action {idx + 1}</span>
-              </li>
-            ))}
-          </ul> */}
         </div>
 
         {/* Right Panel */}
@@ -143,57 +137,13 @@ export default function Home() {
           </button>
         </div>
       </div>
-
-      {/* Bottom Row (5 Cards) */}
-      <div className="flex justify-center space-x-4 mt-8">
-        {Array.from({ length: 5 }).map((_, idx) => (
-          <div key={idx} className="w-40 h-60 bg-purple-600 text-white flex items-center justify-center shadow-md">
-            <span className="text-black">Card {idx + 1}</span>
-          </div>
-        ))}
+      <div className='row-span-2 grid grid-cols-5 gap-5'>
+        <Team />
+        <Team />
+        <Team />
+        <Team />
+        <Team />
       </div>
-
-      {/* Bottom Grid */}
-      <div className='grid grid-cols-5 gap-4 mt-8 rounded-md'>
-      {Array.from({ length: 5 }).map((_, idx) => (
-        <div key={idx} className="bg-white p-4 shadow-lg text-black mb-4">
-          <select 
-            onChange={handleSelectChange(idx)} 
-            value={selectedOptions[idx]} 
-            className="select select-success w-full max-w-xs bg-white"
-          >
-            <option disabled value="">Technology Tools</option>
-            {options.map((option, index) => (
-              <option key={index} value={option}>{option}</option>
-            ))}
-          </select>
-
-          <button 
-            className="ml-4 btn btn-secondary" 
-            onClick={() => handleAdd(idx)}
-            disabled={!selectedOptions[idx]}
-          >
-            Add
-          </button>
-
-          <div className="mt-2">
-            <strong>Added Technologies (Team {idx + 1}):</strong>
-            <ul>
-              {addedTechnologies[idx].map((tech, index) => (
-                <li key={index}>{tech}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ))}
-
-      <button 
-        className="mt-4 btn btn-primary"
-        onClick={() => console.log("Submit button clicked")}
-      >
-        Submit
-      </button>
-    </div>
     </div>
   );
 }
