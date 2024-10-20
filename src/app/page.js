@@ -1,7 +1,7 @@
 // pages/index.js
 "use client"
 import { useState } from 'react';
-import Team from './component/Team';
+import Team from './component/Team.js';
 
 export default function Home() {
 
@@ -84,9 +84,9 @@ export default function Home() {
   };
 
   return (
-    <div className="h-dvh grid grid-rows-4 bg-gray-100 p-8">
+    <div className="h-dvh grid grid-rows-6 bg-gray-100 p-2">
       {/* Main container */}
-      <div className="grid grid-cols-3 row-span-2 gap-4">
+      <div className="grid grid-cols-3 row-span-3 gap-4">
         
         {/* Center Card */}
         <div className="col-span-1 flex justify-center items-center">
@@ -137,7 +137,7 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <div className='row-span-2 grid grid-cols-5 gap-5'>
+      <div className='row-span-3 grid grid-cols-5 gap-5'>
         <Team />
         <Team />
         <Team />

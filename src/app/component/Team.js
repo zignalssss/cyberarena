@@ -122,8 +122,12 @@ export default function Team() {
             </div>
 
             {/* Scrollable teamOptions array */}
-            <div className="row-span-3 overflow-y-auto h-40">
-                <div className={`grid grid-cols-2 gap-2`}>
+            <div className="row-span-3 grid grid-cols-2">
+                <div className='flex flex-col justify-center items-center gap-3'>
+                    <img src='https://i.ibb.co/V94BZC5/1.jpg' className='w-20'></img>
+                    <h1>Card Stack : 0</h1>
+                </div>
+                <div className={`grid grid-cols-1 gap-2  overflow-y-auto h-40`}>
                     {teamOptions.map((item, index) => (
                         <div key={index} className="flex justify-between items-center bg-green-100 px-2 py-1 rounded-lg">
                             <div className='text-xs'>{item}</div>
