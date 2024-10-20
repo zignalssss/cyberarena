@@ -2,38 +2,48 @@ import clientPromise from '../../../../lib/mongo.js';
 
 export async function POST(req) {
   try {
-    // Destructure the required fields from the request body
-    const { teamId, teamEventCards, teamProtectCard } = await req.json();
+    // Parse the JSON body of the request to get dynamic data
+    const data = await req.json();
     
-    console.log("Team ID:", teamId);
-    console.log("Team Event Cards:", teamEventCards);
-    console.log("Team Protect Card:", teamProtectCard);
+    console.log('Received data:', data);
 
-    // Connect to MongoDB
+    // Ensure 'teamId' exists in the request body for updating purposes
+    const { teamId, ...rest } = data;
+    if (teamId === undefined) {
+      return new Response(JSON.stringify({ message: 'teamId is required' }), {
+        status: 400,  // Bad request
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Wait for the MongoDB client connection
     const client = await clientPromise;
-    const db = client.db("CYBERARENA_DATABASE");
+    const db = client.db('CYBERARENA_DATABASE');  // Use the correct database
+
+    // Define the collection where you want to update the data
     const collection = db.collection('TEAM_DETIAL');
 
-    // Update or insert the team details
-    await collection.updateOne(
-      { teamId }, // Filter by teamId
-      {
-        $set: {
-          teamEventCards,      // Set the teamEventCards field
-          teamProtectCard,     // Set the teamProtectCard field
-        }
-      },
-      { upsert: true } // If no document matches, create a new one
+    // Update or insert the document based on teamId and dynamic data
+    const result = await collection.updateOne(
+      { teamId },  // Filter by teamId
+      { $set: rest },  // Use the rest of the dynamic fields in the body for updating
+      { upsert: true }  // If no matching document, insert a new one
     );
 
-    // Return a success response
-    return new Response(JSON.stringify({ message: 'Team details added/updated successfully' }), {
+    console.log('MongoDB Update Result:', result);
+
+    // Return success response
+    return new Response(JSON.stringify({ message: 'Team data added/updated successfully' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
+
   } catch (error) {
-    console.error('Error adding/updating team details:', error);
-    return new Response(JSON.stringify({ message: 'Failed to add/update team details' }), {
+    console.error('Error adding/updating team data:', error.message);
+    
+    // Return failure response with the error message
+    return new Response(JSON.stringify({ message: 'Failed to add/update team data', error: error.message }), {
+
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

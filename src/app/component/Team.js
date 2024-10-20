@@ -1,6 +1,6 @@
-import { useState } from 'react';
-
-export default function Team() {
+import { useEffect, useState } from 'react';
+import axios, { all } from 'axios';
+export default function Team(props) {
 
     const options = [
         "MFA",
@@ -36,11 +36,31 @@ export default function Team() {
     const [selectedOption, setSelectedOption] = useState("");
     const [selectedAntiVirus, setSelectedAntiVirus] = useState("");
     const [selectedOS, setSelectedOS] = useState("");
+    const [eventCards,setEventCards] = useState([])
+    const [countCards,setCountCards] = useState(0)
     const [teamData, setTeamData] = useState({
         Knowledge: 0,
         OS_Version: 0,
         Anti_Virus_Version: 0
     });
+
+    // useEffect(() => {
+    //     axios.get(`http://localhost:3000/api/team/getteamdetial?teamId=${props.id}`)
+    //   .then(response => {
+    //     setTeamData(response.data.data.teamEventCards); // Set the data from the API
+    //     console.log(response.data.data.teamEventCards);
+    //     setCountCards(response.data.data.teamEventCards.length)
+
+    //   })
+    //   .catch(error => {
+    //     setError(error); // Handle errors
+    //   });
+    // },[props.turn])
+
+    useEffect(() => {
+        setCountCards(props.stackSize);
+    }, [props.stackSize])
+
 
     // Handle option selection
     const handleSelectChange = (event) => {
@@ -125,7 +145,7 @@ export default function Team() {
             <div className="row-span-3 grid grid-cols-2">
                 <div className='flex flex-col justify-center items-center gap-3'>
                     <img src='https://i.ibb.co/V94BZC5/1.jpg' className='w-20'></img>
-                    <h1>Card Stack : 0</h1>
+                    <h1>Card Stack : {countCards}</h1>
                 </div>
                 <div className={`grid grid-cols-1 gap-2  overflow-y-auto h-40`}>
                     {teamOptions.map((item, index) => (
