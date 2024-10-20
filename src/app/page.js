@@ -33,6 +33,29 @@ export default function Home() {
 
   const [selectedOptions, setSelectedOptions] = useState(Array(5).fill(''));
   const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // Stores the added technologies
+  const [dataLevel,setDataLevel] = useState({
+    Knowledge:0,
+    Norton:0,
+    Bitdefender:0,
+    "Avira Antivirus":0,
+    McAfee:0,
+    Windows:0,
+    Linux:0
+  })
+
+
+  const handChangeLevel = (key,operat) => {
+    if(operat === '-'){
+      setDataLevel(preData => ({
+        ...preData,[key] : Math.max(preData[key] - 1,0)
+      }))
+    }
+    else if(operat === '+'){
+      setDataLevel(preData => ({
+        ...preData,[key] : preData[key] + 1
+      }))
+    }
+  }
 
   // Handle option change for a specific team
   const handleSelectChange = (index) => (event) => {
@@ -84,65 +107,53 @@ export default function Home() {
   };
 
   return (
-    <div className="h-dvh grid grid-rows-6 bg-gray-100 p-2">
+    <div className="h-dvh ">
       {/* Main container */}
-      <div className="grid grid-cols-3 row-span-3 gap-4">
-        
-        {/* Center Card */}
-        <div className="col-span-1 flex justify-center items-center">
-          <div className="w-40 h-60 bg-purple-600 text-white flex items-center justify-center">
-            <span className="text-black">Card</span>
+      <div className='grid grid-rows-6 bg-gray-100 p-2 gap-5'>
+        <div className="grid grid-cols-3 row-span-3 gap-4">
+          
+          {/* Center Card */}
+          {/* <div className="col-span-1 flex justify-center items-center">
+            
+          </div> */}
+          
+          {/* Team Manager + List */}
+          <div className="col-span-1 bg-white grid grid-cols-2 shadow-lg p-4">
+            <div className='text-black flex flex-col items-center py-5 gap-5'>
+              <h1 className='text-2xl'>Global Event</h1>
+              {/* <div className="w-40 h-60 bg-purple-600 text-white flex items-center justify-center">
+                <h1 className="text-black">Card</h1>
+              </div> */}
+              <div className='flex flex-col items-center gap-3'>
+                <img src="https://i.ibb.co/V94BZC5/1.jpg'" className='w-4/5' />
+                <h1>Card Stack : 0</h1>
+              </div>
+            </div>
+            <div className='grid grid-rows-6 gap-1 '>
+              {Object.entries(dataLevel).map(([key, value], index) => (
+                <div className='text-black flex justify-between items-center'>
+                  {key}
+                  <div className='flex items-center gap-4'>
+                    <button className='btn btn-secondary' onClick={()=>{handChangeLevel(key,'-')}}>-</button>
+                    <h1>{value}</h1>
+                    <button className='btn btn-secondary' onClick={()=>{handChangeLevel(key,'+')}}>+</button>
+                  </div>
+                </div>
+                
+              ))}
+            </div>
+          </div>
+          <div className='col-span-2 bg-white shadow-lg  '>
+
           </div>
         </div>
-        
-        {/* Team Manager + List */}
-        <div className="col-span-1 bg-white shadow-lg p-4">
-          <h2 className="text-xl font-bold text-black">Global Event</h2>
-          <ul className="mt-4 text-black">
-            <li className="flex justify-between">
-              <span>Knowledge Level</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Norton</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Bitdefender</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Avira Antivirus</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>McAfee</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Windows</span>
-              <span>0 +</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Linux</span>
-              <span>0 +</span>
-            </li>
-          </ul>
+        <div className='row-span-3 grid grid-cols-5 gap-5'>
+          <Team />
+          <Team />
+          <Team />
+          <Team />
+          <Team />
         </div>
-
-        {/* Right Panel */}
-        <div className="col-span-1 flex justify-center">
-          <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
-            Next Turn
-          </button>
-        </div>
-      </div>
-      <div className='row-span-3 grid grid-cols-5 gap-5'>
-        <Team />
-        <Team />
-        <Team />
-        <Team />
-        <Team />
       </div>
     </div>
   );
