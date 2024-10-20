@@ -42,6 +42,7 @@ export default function Home() {
     Windows:0,
     Linux:0
   })
+  const [activeCards,setActiveCard] = useState([])
 
 
   const handChangeLevel = (key,operat) => {
@@ -143,8 +144,16 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className='col-span-2 bg-white shadow-lg  '>
-
+          <div className='col-span-2 bg-white shadow-lg text-black grid grid-rows-11'>
+              <h1 className='text-2xl row-span-1'>Actvate Card</h1>
+              <div className='grid grid-cols-6 row-span-10'>
+                <div className='bg-red-100'></div>
+                <div className='bg-red-100'></div>
+                <div className='bg-red-100'></div>
+                <div className='bg-red-100'></div>
+                <div className='bg-red-100'></div>
+                <div className='bg-red-100'></div>
+              </div>
           </div>
         </div>
         <div className='row-span-3 grid grid-cols-5 gap-5'>
