@@ -43,6 +43,7 @@ export async function POST(req) {
     
     // Return failure response with the error message
     return new Response(JSON.stringify({ message: 'Failed to add/update team data', error: error.message }), {
+
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
