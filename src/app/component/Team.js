@@ -144,7 +144,7 @@ export default function Team(props) {
             {/* Scrollable teamOptions array */}
             <div className="row-span-3 grid grid-cols-2">
                 <div className='flex flex-col justify-center items-center gap-3'>
-                    <img src='https://i.ibb.co/V94BZC5/1.jpg' className='w-20'></img>
+                    <img src='https://i.ibb.co/V94BZC5/1.jpg' className='w-20 rounded-md'></img>
                     <h1>Card Stack : {countCards}</h1>
                 </div>
                 <div className={`grid grid-cols-1 gap-2  overflow-y-auto h-40`}>

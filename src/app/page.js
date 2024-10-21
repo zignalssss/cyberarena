@@ -82,28 +82,28 @@ export default function Home() {
 
   const delData = async (teamIndex, data) => {
     try {
-        const response = await axios.post('http://localhost:3000/api/team/deleteteamcard', {
-            teamId: teamIndex, // Assuming teamIndex corresponds to the team
-            delcard: data
+      const response = await axios.post('http://localhost:3000/api/team/deleteteamcard', {
+        teamId: teamIndex, // Assuming teamIndex corresponds to the team
+        delcard: data
+      });
+
+      console.log('Response:', response.data.message);
+
+      // Check if the response contains updated teamEventCards
+      if (response.status === 200) {
+        const newTeamEventCards = response.data.teamEventCards; // Ensure this is the updated 2D array
+
+        // Update the specific team's event cards if necessary
+        setTeamEventCards(prevState => {
+          const newState = [...prevState];
+          newState[teamIndex] = newTeamEventCards; // Update the specific team
+          return newState;
         });
-
-        console.log('Response:', response.data.message);
-
-        // Check if the response contains updated teamEventCards
-        if (response.status === 200) {
-            const newTeamEventCards = response.data.teamEventCards; // Ensure this is the updated 2D array
-
-            // Update the specific team's event cards if necessary
-            setTeamEventCards(prevState => {
-                const newState = [...prevState];
-                newState[teamIndex] = newTeamEventCards; // Update the specific team
-                return newState;
-            });
-        }
+      }
     } catch (error) {
-        console.error('Error deleting card:', error);
+      console.error('Error deleting card:', error);
     }
-};
+  };
 
   useEffect(() => {
     // Making a request to an external API
@@ -143,8 +143,8 @@ export default function Home() {
       // console.log(newTeamEventCards)
       setTeamEventCards(newTeamEventCards); // Update the state with the new copy
     }
-    
-    
+
+
   }, [turn]);
 
   useEffect(() => {
@@ -269,23 +269,23 @@ export default function Home() {
           {/* Team Manager + List */}
           <div className="col-span-1 bg-white grid grid-cols-2 shadow-lg p-4">
             <div className='text-black flex flex-col items-center py-5 gap-5'>
-              <h1 className='text-2xl'>Global Event</h1>
+              <h1 className='text-2xl font-semibold '>Global Event</h1>
               {/* <div className="w-40 h-60 bg-purple-600 text-white flex items-center justify-center">
                 <h1 className="text-black">Card</h1>
               </div> */}
               <div className='flex flex-col items-center gap-3'>
-                <img src="https://i.ibb.co/V94BZC5/1.jpg" className='w-4/5' />
+                <img src="https://i.ibb.co/V94BZC5/1.jpg" className='w-4/5 rounded-md' />
                 <h1>Card Stack : {teamEventCards[0].length}</h1>
               </div>
             </div>
-            <div className='grid grid-rows-6 gap-1 '>
+            <div className='grid gap-2 '>
               {Object.entries(dataLevel).map(([key, value], index) => (
                 <div className='text-black flex justify-between items-center'>
                   {key}
                   <div className='flex items-center gap-4'>
-                    <button className='btn btn-secondary' onClick={() => { handChangeLevel(key, '-') }}>-</button>
+                    <button className='btn btn-sm w-10' onClick={() => { handChangeLevel(key, '-') }}>-</button>
                     <h1>{value}</h1>
-                    <button className='btn btn-secondary' onClick={() => { handChangeLevel(key, '+') }}>+</button>
+                    <button className='btn btn-sm w-10' onClick={() => { handChangeLevel(key, '+') }}>+</button>
                   </div>
                 </div>
 
@@ -294,10 +294,10 @@ export default function Home() {
           </div>
           <div className='col-span-2 bg-white shadow-lg text-black grid grid-rows-11 p-2' >
             <div className='flex justify-between items-center row-span-2 '>
-              <h1 className='text-2xl '>Active Card</h1>
+              <h1 className='text-2xl font-semibold '>Active Card</h1>
               <div className='flex items-center gap-5'>
                 <h1 className='text-2xl'>Turn : {turn}</h1>
-                <button className='bg-green-500 p-5 text-white' onClick={() => { setTurn(preturn => (preturn + 1)) }}>Next Turn</button>
+                <button className='btn bg-green-700  text-white' onClick={() => { setTurn(preturn => (preturn + 1)) }}>Next Turn</button>
               </div>
             </div>
             <div className='grid grid-cols-6 row-span-9 gap-2 items-center text-black' >
@@ -305,12 +305,13 @@ export default function Home() {
               {
                 teamActiveEventCards.map((element, index) => (
                   <div key={index}>
-                    {element.length === 0 && <img src='https://i.ibb.co/V94BZC5/1.jpg' />}
+                    {element.length === 0 && <img className = "rounded-md" src='https://i.ibb.co/V94BZC5/1.jpg' />}
                     {element.length > 0 &&
                       <div className='flex flex-col'>
                         {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
-                        <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} />
-                        <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white'>{'x'}</button>
+                        {/* <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} /> */}
+                        <img className="rounded-md" src={element[0].ImageURL} onClick={() => {document.getElementById('my_modal_1').showModal();handSetPopup(element[0])}} />
+                        <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white rounded-md'>{'x'}</button>
                       </div>
                     }
                   </div>
@@ -329,23 +330,41 @@ export default function Home() {
           </div>
 
           {/* Pop-up Modal */}
-          <Popup open={open} closeOnDocumentClick onClose={closeModal} modal nested>
-            {close => (
-              <div className="text-black">
-                <button className="close" onClick={close}>&times;</button>
-                <div className='bg-white flex flex-col items-center p-5'>
-                  {/* <div>All Teams</div> */}
-                  {/* <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" /> */}
-                  <img src={zoomDisplay.ImageURL} alt="Card" className="w-96" />
-                  {/* <div className='flex justify-between gap-8 text-xl mt-4'>
+          <dialog id="my_modal_1" className="modal">
+            <div className="">
+              <div className="modal-action">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm w-20 bg-red-500 text-black hover:text-white btn-square mb-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </form>
+              </div>
+              <div className='bg-white flex flex-col items-center p-5 rounded-md'>
+                {/* <div>All Teams</div> */}
+                {/* <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" /> */}
+                <img src={zoomDisplay.ImageURL} alt="Card" className="w-96" />
+                {/* <div className='flex justify-between gap-8 text-xl mt-4'>
                     <h1>C: -45</h1>
                     <h1>I: -35</h1>
                     <h1>A: -25</h1>
                   </div> */}
-                </div>
               </div>
-            )}
-          </Popup>
+            </div>
+          </dialog>
+
+
         </div>
         <div className='row-span-3 grid grid-cols-5 gap-5'>
           <Team id={1} turn={turn} stackSize={teamEventCards[0].length} />
