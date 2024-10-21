@@ -47,16 +47,16 @@ export default function Home() {
   const [selectedOptions, setSelectedOptions] = useState(Array(5).fill(''));
   const [allCard, setAllCard] = useState([]);
   const [countCard, setCountCard] = useState(160);
-  const [teamEventCards,setTeamEventCards] = useState([
-    [],[],[],[],[],[]
+  const [teamEventCards, setTeamEventCards] = useState([
+    [], [], [], [], [], []
   ])
-  const [teamActiveEventCards,setTeamActiveEventCards] = useState([
-    [],[],[],[],[],[]
+  const [teamActiveEventCards, setTeamActiveEventCards] = useState([
+    [], [], [], [], [], []
   ])
-  const [zoomDisplay,setZoomDisplay] = useState({});
-  const [turn ,setTurn] = useState(1);
+  const [zoomDisplay, setZoomDisplay] = useState({});
+  const [turn, setTurn] = useState(1);
   const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // Stores the added technologies
-  const [centerCards,setCenterCard] = useState([])
+  const [centerCards, setCenterCard] = useState([])
   const [dataLevel, setDataLevel] = useState({
     Knowledge: 0,
     Norton: 0,
@@ -66,7 +66,44 @@ export default function Home() {
     Windows: 0,
     Linux: 0
   })
+  const postData = async (index, list) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/team/updateteam', {
+        teamId: index,
+        teamEventCards: list
+        // teamProtectCard: [] // Empty array for teamevent
+      });
 
+      //console.log('Response:', response.data);  // Handle successful response
+    } catch (error) {
+      console.error('Error posting data:', error);  // Handle error
+    }
+  };
+
+  const delData = async (teamIndex, data) => {
+    try {
+        const response = await axios.post('http://localhost:3000/api/team/deleteteamcard', {
+            teamId: teamIndex, // Assuming teamIndex corresponds to the team
+            delcard: data
+        });
+
+        console.log('Response:', response.data.message);
+
+        // Check if the response contains updated teamEventCards
+        if (response.status === 200) {
+            const newTeamEventCards = response.data.teamEventCards; // Ensure this is the updated 2D array
+
+            // Update the specific team's event cards if necessary
+            setTeamEventCards(prevState => {
+                const newState = [...prevState];
+                newState[teamIndex] = newTeamEventCards; // Update the specific team
+                return newState;
+            });
+        }
+    } catch (error) {
+        console.error('Error deleting card:', error);
+    }
+};
 
   useEffect(() => {
     // Making a request to an external API
@@ -79,7 +116,8 @@ export default function Home() {
         setError(error); // Handle errors
       });
   }, []);
-
+  console.log("This is TEAM DATA:")
+  console.log(teamEventCards);
   useEffect(() => {
     if (allCard.data) {
       const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
@@ -88,51 +126,45 @@ export default function Home() {
         if (allCard.data) {
           let newElemet = allCard.data[randDomIndex];
           let news = [...newTeamEventCards[i]]; // Copy the individual team's event cards array
-  
+
           console.log(`Before: ${newElemet.Turn}`);
           if (newElemet.Turn == -1) {
             let ranTurn = Math.floor(Math.random() * 4);
             newElemet.Turn = ranTurn;
           }
           newElemet.Turn = newElemet.Turn + turn;
-  
+
           console.log(`After: ${newElemet.Turn}`);
           news.push(newElemet);
           newTeamEventCards[i] = news; // Update the specific team list with the new element
         }
       }
+      // console.log("NEW DATA:")
+      // console.log(newTeamEventCards)
       setTeamEventCards(newTeamEventCards); // Update the state with the new copy
     }
-    console.log(teamEventCards);
+    
+    
   }, [turn]);
-  
+
   useEffect(() => {
-    const postData = async (index,list) => {
-      try {
-        const response = await axios.post('http://localhost:3000/api/team/updateteam', {
-          teamId: index,
-          teamEventCards: list 
-          // teamProtectCard: [] // Empty array for teamevent
-        });
-        
-        console.log('Response:', response.data);  // Handle successful response
-      } catch (error) {
-        console.error('Error posting data:', error);  // Handle error
-      }
-    };
-    for(let i = 0 ; i < 6 ; i++)
-    {
-      postData(i,teamEventCards[i]);
+    console.log("ACTIVATE:!")
+
+    for (let i = 0; i < 6; i++) {
+      // console.log("TEAM EVENT ADD")
+      // console.log(teamEventCards[i])
+      postData(i, teamEventCards[i]);
     }
-  }, [turn])
+  }, [teamEventCards])
 
   useEffect(() => {
     let newActive = teamActiveEventCards.map(arr => [...arr]); // Create a deep copy
     for (let i = 0; i < 6; i++) {
-      console.log(`Team : ${i} EiEi`);
+      //console.log(`Team : ${i} EiEi`);
       teamEventCards[i].forEach((element) => {
         if (element.Turn === turn) {
           newActive[i].push(element); // Add element to the copy
+          delData(i, element)
         }
       });
     }
@@ -150,7 +182,7 @@ export default function Home() {
     }
     else if (operat === '+') {
       setDataLevel(preData => ({
-        ...preData, [keyID]: preData[keyID] + 1 
+        ...preData, [keyID]: preData[keyID] + 1
       }))
     }
   }
@@ -210,13 +242,13 @@ export default function Home() {
     console.log(data);
     setZoomDisplay(data)
 
-    
+
   }
   const handleRemoveElement = (index) => {
     console.log(`Remove Team : ${index}`)
-    setTeamActiveEventCards(prevState => 
-      prevState.map((element, i) => 
-        i === index && element.length > 0 
+    setTeamActiveEventCards(prevState =>
+      prevState.map((element, i) =>
+        i === index && element.length > 0
           ? element.slice(1) // Remove the first element if length > 0
           : element // Keep the same element otherwise
       )
@@ -265,7 +297,7 @@ export default function Home() {
               <h1 className='text-2xl '>Active Card</h1>
               <div className='flex items-center gap-5'>
                 <h1 className='text-2xl'>Turn : {turn}</h1>
-                <button className='bg-green-500 p-5 text-white' onClick={()=>{setTurn(preturn => (preturn + 1))}}>Next Turn</button>
+                <button className='bg-green-500 p-5 text-white' onClick={() => { setTurn(preturn => (preturn + 1)) }}>Next Turn</button>
               </div>
             </div>
             <div className='grid grid-cols-6 row-span-9 gap-2 items-center text-black' >
@@ -273,11 +305,11 @@ export default function Home() {
               {
                 teamActiveEventCards.map((element, index) => (
                   <div key={index}>
-                    {element.length === 0 && <img src='https://i.ibb.co/V94BZC5/1.jpg'/>}
-                    {element.length > 0 && 
+                    {element.length === 0 && <img src='https://i.ibb.co/V94BZC5/1.jpg' />}
+                    {element.length > 0 &&
                       <div className='flex flex-col'>
                         {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
-                        <img src={element[0].ImageURL} onClick={() => {handSetPopup(element[0])}} />
+                        <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} />
                         <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white'>{'x'}</button>
                       </div>
                     }
@@ -316,11 +348,11 @@ export default function Home() {
           </Popup>
         </div>
         <div className='row-span-3 grid grid-cols-5 gap-5'>
-          <Team id={1} turn={turn} stackSize={teamEventCards[0].length}/>
-          <Team id={2} turn={turn} stackSize={teamEventCards[1].length}/>
-          <Team id={3} turn={turn} stackSize={teamEventCards[2].length}/>
-          <Team id={4} turn={turn} stackSize={teamEventCards[3].length}/>
-          <Team id={5} turn={turn} stackSize={teamEventCards[4].length}/>
+          <Team id={1} turn={turn} stackSize={teamEventCards[0].length} />
+          <Team id={2} turn={turn} stackSize={teamEventCards[1].length} />
+          <Team id={3} turn={turn} stackSize={teamEventCards[2].length} />
+          <Team id={4} turn={turn} stackSize={teamEventCards[3].length} />
+          <Team id={5} turn={turn} stackSize={teamEventCards[4].length} />
         </div>
       </div>
     </div>

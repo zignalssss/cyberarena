@@ -5,7 +5,7 @@ export async function POST(req) {
     // Parse the JSON body of the request to get dynamic data
     const data = await req.json();
     
-    console.log('Received data:', data);
+    //console.log('Received data:', data);
 
     // Ensure 'teamId' exists in the request body for updating purposes
     const { teamId, ...rest } = data;
@@ -30,7 +30,7 @@ export async function POST(req) {
       { upsert: true }  // If no matching document, insert a new one
     );
 
-    console.log('MongoDB Update Result:', result);
+    //console.log('MongoDB Update Result:', result);
 
     // Return success response
     return new Response(JSON.stringify({ message: 'Team data added/updated successfully' }), {
