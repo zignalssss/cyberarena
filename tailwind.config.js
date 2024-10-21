@@ -12,6 +12,9 @@ module.exports = {
         foreground: "var(--foreground)",
       },
     },
+    fontFamily:{
+      kanit :["Kanit", "sans-serif"]
+  },
   },
   plugins: [
     require('daisyui'),

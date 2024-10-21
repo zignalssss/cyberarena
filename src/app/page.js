@@ -269,23 +269,23 @@ export default function Home() {
           {/* Team Manager + List */}
           <div className="col-span-1 bg-white grid grid-cols-2 shadow-lg p-4">
             <div className='text-black flex flex-col items-center py-5 gap-5'>
-              <h1 className='text-2xl'>Global Event</h1>
+              <h1 className='text-2xl font-semibold '>Global Event</h1>
               {/* <div className="w-40 h-60 bg-purple-600 text-white flex items-center justify-center">
                 <h1 className="text-black">Card</h1>
               </div> */}
               <div className='flex flex-col items-center gap-3'>
-                <img src="https://i.ibb.co/V94BZC5/1.jpg" className='w-4/5' />
+                <img src="https://i.ibb.co/V94BZC5/1.jpg" className='w-4/5 rounded-md' />
                 <h1>Card Stack : {teamEventCards[0].length}</h1>
               </div>
             </div>
-            <div className='grid grid-rows-6 gap-1 '>
+            <div className='grid gap-2 '>
               {Object.entries(dataLevel).map(([key, value], index) => (
                 <div className='text-black flex justify-between items-center'>
                   {key}
                   <div className='flex items-center gap-4'>
-                    <button className='btn btn-secondary' onClick={() => { handChangeLevel(key, '-') }}>-</button>
+                    <button className='btn btn-sm w-10' onClick={() => { handChangeLevel(key, '-') }}>-</button>
                     <h1>{value}</h1>
-                    <button className='btn btn-secondary' onClick={() => { handChangeLevel(key, '+') }}>+</button>
+                    <button className='btn btn-sm w-10' onClick={() => { handChangeLevel(key, '+') }}>+</button>
                   </div>
                 </div>
 
@@ -294,10 +294,10 @@ export default function Home() {
           </div>
           <div className='col-span-2 bg-white shadow-lg text-black grid grid-rows-11 p-2' >
             <div className='flex justify-between items-center row-span-2 '>
-              <h1 className='text-2xl '>Active Card</h1>
+              <h1 className='text-2xl font-semibold '>Active Card</h1>
               <div className='flex items-center gap-5'>
                 <h1 className='text-2xl'>Turn : {turn}</h1>
-                <button className='bg-green-500 p-5 text-white' onClick={() => { setTurn(preturn => (preturn + 1)) }}>Next Turn</button>
+                <button className='btn bg-green-700  text-white' onClick={() => { setTurn(preturn => (preturn + 1)) }}>Next Turn</button>
               </div>
             </div>
             <div className='grid grid-cols-6 row-span-9 gap-2 items-center text-black' >
@@ -305,12 +305,12 @@ export default function Home() {
               {
                 teamActiveEventCards.map((element, index) => (
                   <div key={index}>
-                    {element.length === 0 && <img src='https://i.ibb.co/V94BZC5/1.jpg' />}
+                    {element.length === 0 && <img className = "rounded-md" src='https://i.ibb.co/V94BZC5/1.jpg' />}
                     {element.length > 0 &&
                       <div className='flex flex-col'>
                         {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
                         {/* <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} /> */}
-                        <img src={element[0].ImageURL} onClick={() => {document.getElementById('my_modal_1').showModal();handSetPopup(element[0])}} />
+                        <img className="rounded-md" src={element[0].ImageURL} onClick={() => {document.getElementById('my_modal_1').showModal();handSetPopup(element[0])}} />
                         <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white'>{'x'}</button>
                       </div>
                     }
