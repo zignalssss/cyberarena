@@ -81,8 +81,6 @@ export default function Home() {
     }
   };
 
-
-
   const postData = async (index, list) => {
     try {
       const response = await axios.post('http://localhost:3000/api/team/updateteam', {

@@ -45,7 +45,7 @@ export default function Team(props) {
     });
 
 
-    const postData = async () => {
+    const postDataLevel = async () => {
         try {
             const response = await axios.post('http://localhost:3000/api/team/updateteam', {
             teamId: props.id,
@@ -61,12 +61,32 @@ export default function Team(props) {
         }
     };
 
+    const postDataProtect = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/team/updateteam', {
+            teamId: props.id,
+            teamProtectCard : teamOptions
+            // teamProtectCard: [] // Empty array for teamevent
+            });
+
+            //console.log('Response:', response.data);  // Handle successful response
+        } catch (error) {
+            console.error('Error posting data:', error);  // Handle error
+        }
+    };
+
     useEffect(() => {
-        postData();
+        postDataLevel();
         // console.log("EIEI")
         // console.log(selectedAntiVirus)
         // console.log(selectedOS)
     }, [selectedAntiVirus,selectedOS,teamData])
+
+    useEffect(() => {
+        console.log(`Team : ${props.id}`)
+        console.log(teamOptions)
+        postDataProtect();
+    } , [teamOptions])
 
     // useEffect(() => {
     //     axios.get(`http://localhost:3000/api/team/getteamdetial?teamId=${props.id}`)
