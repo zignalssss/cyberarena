@@ -48,8 +48,12 @@ export default function Home() {
   const [allCard, setAllCard] = useState([]);
   const [countCard, setCountCard] = useState(160);
   const [teamEventCards,setTeamEventCards] = useState([
-    [],[],[],[],[]
+    [],[],[],[],[],[]
   ])
+  const [teamActiveEventCards,setTeamActiveEventCards] = useState([
+    [],[],[],[],[],[]
+  ])
+  const [zoomDisplay,setZoomDisplay] = useState({});
   const [turn ,setTurn] = useState(1);
   const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // Stores the added technologies
   const [centerCards,setCenterCard] = useState([])
@@ -62,7 +66,6 @@ export default function Home() {
     Windows: 0,
     Linux: 0
   })
-  const [activeCards, setActiveCard] = useState([])
 
 
   useEffect(() => {
@@ -78,36 +81,38 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    let randDomIndex = Math.floor(Math.random()*countCard);
-    // console.log(randDomIndex)
-    if(allCard.data){
-      let newElemet = allCard.data[randDomIndex];
-      setCenterCard([...centerCards, newElemet])
-      // console.log((allCard.data[randDomIndex]));
-      // console.log(typeof(allCard.data[randDomIndex]));
-    }
-
-    for (let i = 0 ; i < 5 ; i++){
-      let randDomIndex = Math.floor(Math.random()*countCard);
-      if(allCard.data){
-        let newElemet = allCard.data[randDomIndex];
-        let updateList = teamEventCards;
-        let news = updateList[i];
-        news.push(newElemet);
-        updateList[i] = news;
-        setTeamEventCards(updateList)
+    if (allCard.data) {
+      const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
+      for (let i = 0; i < 6; i++) {
+        let randDomIndex = Math.floor(Math.random() * countCard);
+        if (allCard.data) {
+          let newElemet = allCard.data[randDomIndex];
+          let news = [...newTeamEventCards[i]]; // Copy the individual team's event cards array
+  
+          console.log(`Before: ${newElemet.Turn}`);
+          if (newElemet.Turn == -1) {
+            let ranTurn = Math.floor(Math.random() * 4);
+            newElemet.Turn = ranTurn;
+          }
+          newElemet.Turn = newElemet.Turn + turn;
+  
+          console.log(`After: ${newElemet.Turn}`);
+          news.push(newElemet);
+          newTeamEventCards[i] = news; // Update the specific team list with the new element
+        }
       }
+      setTeamEventCards(newTeamEventCards); // Update the state with the new copy
     }
-
-    console.log(teamEventCards)
-  }, [turn])
-
+    console.log(teamEventCards);
+  }, [turn]);
+  
   useEffect(() => {
     const postData = async (index,list) => {
       try {
         const response = await axios.post('http://localhost:3000/api/team/updateteam', {
           teamId: index,
-          teamEventCards: list  // Empty array for teamevent
+          teamEventCards: list 
+          // teamProtectCard: [] // Empty array for teamevent
         });
         
         console.log('Response:', response.data);  // Handle successful response
@@ -117,17 +122,25 @@ export default function Home() {
     };
     for(let i = 0 ; i < 6 ; i++)
     {
-      if(i == 0)
-      {
-        postData(0,centerCards);
-      }
-      else 
-      {
-        postData(i,teamEventCards[i-1])
-      }
+      postData(i,teamEventCards[i]);
     }
-      // Call the async function
-  }, [centerCards,turn])
+  }, [turn])
+
+  useEffect(() => {
+    let newActive = teamActiveEventCards.map(arr => [...arr]); // Create a deep copy
+    for (let i = 0; i < 6; i++) {
+      console.log(`Team : ${i} EiEi`);
+      teamEventCards[i].forEach((element) => {
+        if (element.Turn === turn) {
+          newActive[i].push(element); // Add element to the copy
+        }
+      });
+    }
+    console.log("newActive")
+    setTeamActiveEventCards(newActive); // Update the state with the new copy
+    console.log(newActive)
+  }, [turn]);
+
 
   const handChangeLevel = (keyID, operat) => {
     if (operat === '-') {
@@ -191,6 +204,25 @@ export default function Home() {
     }
   };
 
+  const handSetPopup = (data) => {
+    openModal();
+    console.log("TEST POP-UP")
+    console.log(data);
+    setZoomDisplay(data)
+
+    
+  }
+  const handleRemoveElement = (index) => {
+    console.log(`Remove Team : ${index}`)
+    setTeamActiveEventCards(prevState => 
+      prevState.map((element, i) => 
+        i === index && element.length > 0 
+          ? element.slice(1) // Remove the first element if length > 0
+          : element // Keep the same element otherwise
+      )
+    );
+  };
+
   return (
     <div className="h-dvh ">
       {/* Main container */}
@@ -210,8 +242,8 @@ export default function Home() {
                 <h1 className="text-black">Card</h1>
               </div> */}
               <div className='flex flex-col items-center gap-3'>
-                <img src="https://i.ibb.co/V94BZC5/1.jpg'" className='w-4/5' />
-                <h1>Card Stack : {centerCards.length}</h1>
+                <img src="https://i.ibb.co/V94BZC5/1.jpg" className='w-4/5' />
+                <h1>Card Stack : {teamEventCards[0].length}</h1>
               </div>
             </div>
             <div className='grid grid-rows-6 gap-1 '>
@@ -236,8 +268,23 @@ export default function Home() {
                 <button className='bg-green-500 p-5 text-white' onClick={()=>{setTurn(preturn => (preturn + 1))}}>Next Turn</button>
               </div>
             </div>
-            <div className='grid grid-cols-6 row-span-9 gap-2 items-center ' >
-              <div className='shadow-2xl flex flex-col items-center' onClick={openModal}>
+            <div className='grid grid-cols-6 row-span-9 gap-2 items-center text-black' >
+              {/* Display Active Event Cards */}
+              {
+                teamActiveEventCards.map((element, index) => (
+                  <div key={index}>
+                    {element.length === 0 && <img src='https://i.ibb.co/V94BZC5/1.jpg'/>}
+                    {element.length > 0 && 
+                      <div className='flex flex-col'>
+                        {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
+                        <img src={element[0].ImageURL} onClick={() => {handSetPopup(element[0])}} />
+                        <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white'>{'x'}</button>
+                      </div>
+                    }
+                  </div>
+                ))
+              }
+              {/* <div className='shadow-2xl flex flex-col items-center' onClick={openModal}>
                 <div>All Teams</div>
                 <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" />
                 <div className='flex justify-between gap-2'>
@@ -245,7 +292,7 @@ export default function Home() {
                   <h1>I: -35</h1>
                   <h1>A: -25</h1>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -254,14 +301,15 @@ export default function Home() {
             {close => (
               <div className="text-black">
                 <button className="close" onClick={close}>&times;</button>
-                <div className='bg-white flex flex-col items-center p-4'>
-                  <div>All Teams</div>
-                  <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" />
-                  <div className='flex justify-between gap-8 text-xl mt-4'>
+                <div className='bg-white flex flex-col items-center p-5'>
+                  {/* <div>All Teams</div> */}
+                  {/* <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" /> */}
+                  <img src={zoomDisplay.ImageURL} alt="Card" className="w-96" />
+                  {/* <div className='flex justify-between gap-8 text-xl mt-4'>
                     <h1>C: -45</h1>
                     <h1>I: -35</h1>
                     <h1>A: -25</h1>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
