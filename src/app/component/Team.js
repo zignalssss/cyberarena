@@ -44,6 +44,30 @@ export default function Team(props) {
         Anti_Virus_Version: 0
     });
 
+
+    const postData = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/team/updateteam', {
+            teamId: props.id,
+            teamData : teamData,
+            teamOs : selectedOS,
+            teamAntiVirus : selectedAntiVirus
+            // teamProtectCard: [] // Empty array for teamevent
+            });
+
+            //console.log('Response:', response.data);  // Handle successful response
+        } catch (error) {
+            console.error('Error posting data:', error);  // Handle error
+        }
+    };
+
+    useEffect(() => {
+        postData();
+        // console.log("EIEI")
+        // console.log(selectedAntiVirus)
+        // console.log(selectedOS)
+    }, [selectedAntiVirus,selectedOS,teamData])
+
     // useEffect(() => {
     //     axios.get(`http://localhost:3000/api/team/getteamdetial?teamId=${props.id}`)
     //   .then(response => {
@@ -80,13 +104,6 @@ export default function Team(props) {
         setTeamOptions(teamOptions.filter(option => option !== item));
     };
 
-    // Handle increment and decrement of knowledge level
-    const incrementKnowledge = () => {
-        setTeamData(prevData => ({
-            ...prevData,
-            Knowledge: prevData.Knowledge + 1
-        }));
-    };
     const increment = (data) => {
         setTeamData(prevData => ({
             ...prevData,
@@ -102,20 +119,6 @@ export default function Team(props) {
         }));
     };
 
-    const decrementKnowledge = () => {
-        setTeamData(prevData => ({
-            ...prevData,
-            Knowledge: prevData.Knowledge > 0 ? prevData.Knowledge - 1 : 0
-        }));
-    };
-
-    // Handle OS and Antivirus changes
-    const handleSelectData = (value) => {
-        setTeamData(prevData => ({
-            ...prevData,
-            [value]: 0
-        }));
-    };
 
     return (
         <div className="bg-white p-2 shadow-lg text-black mb-4 h-full w-full grid grid-rows-7 gap-1">
@@ -171,10 +174,11 @@ export default function Team(props) {
                 <div className='row-span-1 grid grid-cols-2 items-center gap-2'>
                     <select
                         className="select select-success w-full max-w-xs bg-white"
+                        value={selectedAntiVirus} onChange={(e) => setSelectedAntiVirus(e.target.value)}
                     >
                         <option disabled value="">Select Antivirus</option>
                         {antiVirus.map((av, index) => (
-                            <option key={index} value={av}>{av}</option>
+                            <option key={index} value={av} onSelect={() => {setSelectedAntiVirus(av)}}>{av}</option>
                         ))}
                     </select>
                     <div className="flex items-center space-x-4">
@@ -185,12 +189,14 @@ export default function Team(props) {
                 </div>
 
                 <div className="row-span-1 grid grid-cols-2 items-center gap-2">
-                    <select
-                        className="select select-success w-full max-w-xs bg-white"
-                    >
-                        <option disabled value="">Select OS</option>
+                    <select value={selectedOS} onChange={(e) => setSelectedOS(e.target.value)} className='select select-success w-full max-w-xs bg-white'>
+                        <option disabled value="">
+                            Select OS
+                        </option>
                         {os.map((osOption, index) => (
-                            <option key={index} value={osOption}>{osOption}</option>
+                            <option key={index} value={osOption}>
+                            {osOption}
+                            </option>
                         ))}
                     </select>
                     <div className="flex items-center space-x-4 ">

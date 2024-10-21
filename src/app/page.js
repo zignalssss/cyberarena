@@ -66,6 +66,23 @@ export default function Home() {
     Windows: 0,
     Linux: 0
   })
+
+  const postDataLevel = async () => {
+    try {
+        const response = await axios.post('http://localhost:3000/api/team/updateteam', {
+        teamId: 0,
+        teamData : dataLevel,
+        // teamProtectCard: [] // Empty array for teamevent
+        });
+
+        //console.log('Response:', response.data);  // Handle successful response
+    } catch (error) {
+        console.error('Error posting data:', error);  // Handle error
+    }
+  };
+
+
+
   const postData = async (index, list) => {
     try {
       const response = await axios.post('http://localhost:3000/api/team/updateteam', {
@@ -104,6 +121,11 @@ export default function Home() {
       console.error('Error deleting card:', error);
     }
   };
+
+
+  useEffect(() => {
+    postDataLevel();
+  }, [dataLevel])
 
   useEffect(() => {
     // Making a request to an external API
@@ -171,7 +193,7 @@ export default function Home() {
     console.log("newActive")
     setTeamActiveEventCards(newActive); // Update the state with the new copy
     console.log(newActive)
-  }, [turn]);
+  }, [teamEventCards]);
 
 
   const handChangeLevel = (keyID, operat) => {
@@ -367,11 +389,11 @@ export default function Home() {
 
         </div>
         <div className='row-span-3 grid grid-cols-5 gap-5'>
-          <Team id={1} turn={turn} stackSize={teamEventCards[0].length} />
-          <Team id={2} turn={turn} stackSize={teamEventCards[1].length} />
-          <Team id={3} turn={turn} stackSize={teamEventCards[2].length} />
-          <Team id={4} turn={turn} stackSize={teamEventCards[3].length} />
-          <Team id={5} turn={turn} stackSize={teamEventCards[4].length} />
+          <Team id={1} turn={turn} stackSize={teamEventCards[1].length} />
+          <Team id={2} turn={turn} stackSize={teamEventCards[2].length} />
+          <Team id={3} turn={turn} stackSize={teamEventCards[3].length} />
+          <Team id={4} turn={turn} stackSize={teamEventCards[4].length} />
+          <Team id={5} turn={turn} stackSize={teamEventCards[5].length} />
         </div>
       </div>
     </div>
