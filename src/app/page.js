@@ -311,7 +311,7 @@ export default function Home() {
                         {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
                         {/* <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} /> */}
                         <img className="rounded-md" src={element[0].ImageURL} onClick={() => {document.getElementById('my_modal_1').showModal();handSetPopup(element[0])}} />
-                        <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white'>{'x'}</button>
+                        <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white rounded-md'>{'x'}</button>
                       </div>
                     }
                   </div>
