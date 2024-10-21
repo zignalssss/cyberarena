@@ -47,12 +47,26 @@ export default function Home() {
   const [selectedOptions, setSelectedOptions] = useState(Array(5).fill(''));
   const [allCard, setAllCard] = useState([]);
   const [countCard, setCountCard] = useState(160);
+  const [protectStack, setProtectStack] = useState([])
+  const [showPopup, setShowPopup] = useState(false); 
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [teamEventCards, setTeamEventCards] = useState([
     [], [], [], [], [], []
   ])
   const [teamActiveEventCards, setTeamActiveEventCards] = useState([
     [], [], [], [], [], []
   ])
+
+  const [teamProtectCards, setTeamProtectCards] = useState([
+    [], [], [], [], [], []
+  ])
+
+  const handleNext = () => {
+    if (currentIndex < protectStack.length - 1) {
+      setCurrentIndex(currentIndex + 1); // Move to the next item
+    }
+  };
+
   const [zoomDisplay, setZoomDisplay] = useState({});
   const [turn, setTurn] = useState(1);
   const [addedTechnologies, setAddedTechnologies] = useState(Array(5).fill([])); // Stores the added technologies
@@ -95,6 +109,31 @@ export default function Home() {
     }
   };
 
+  const getProtect = async (index) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/team/getteamdetial?teamId=${index}`);
+      return response.data.data.teamProtectCard;  // Return the protect card for the team
+    } catch (error) {
+      setError(error);  // Handle errors
+      return null;  // Return null if an error occurs
+    }
+  };
+  
+  const fetchAllProtectCards = async () => {
+    const protectCardsCopy = [...teamProtectCards];  // Copy the current state array
+  
+    // Fetch protect card for each index (1 to 5)
+    for (let i = 1; i <= 5; i++) {
+      const protectCard = await getProtect(i);  // Await the fetch for each index
+      if (protectCard !== null) {
+        protectCardsCopy[i] = protectCard;  // Update the copy of the state array
+      }
+    }
+  
+    setTeamProtectCards(protectCardsCopy);  // Update state with the new array after all fetches
+  };
+  
+
   const delData = async (teamIndex, data) => {
     try {
       const response = await axios.post('http://localhost:3000/api/team/deleteteamcard', {
@@ -136,8 +175,8 @@ export default function Home() {
         setError(error); // Handle errors
       });
   }, []);
-  console.log("This is TEAM DATA:")
-  console.log(teamEventCards);
+  // console.log("This is TEAM DATA:")
+  // console.log(teamEventCards);
   useEffect(() => {
     if (allCard.data) {
       const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
@@ -147,14 +186,14 @@ export default function Home() {
           let newElemet = allCard.data[randDomIndex];
           let news = [...newTeamEventCards[i]]; // Copy the individual team's event cards array
 
-          console.log(`Before: ${newElemet.Turn}`);
+          // console.log(`Before: ${newElemet.Turn}`);
           if (newElemet.Turn == -1) {
             let ranTurn = Math.floor(Math.random() * 4);
             newElemet.Turn = ranTurn;
           }
           newElemet.Turn = newElemet.Turn + turn;
 
-          console.log(`After: ${newElemet.Turn}`);
+          // console.log(`After: ${newElemet.Turn}`);
           news.push(newElemet);
           newTeamEventCards[i] = news; // Update the specific team list with the new element
         }
@@ -162,13 +201,18 @@ export default function Home() {
       // console.log("NEW DATA:")
       // console.log(newTeamEventCards)
       setTeamEventCards(newTeamEventCards); // Update the state with the new copy
+      fetchAllProtectCards();
     }
-
 
   }, [turn]);
 
+
+  const closePopup = () => {
+    setShowPopup(false);  // Close the popup
+  };
+
   useEffect(() => {
-    console.log("ACTIVATE:!")
+    // console.log("ACTIVATE:!")
 
     for (let i = 0; i < 6; i++) {
       // console.log("TEAM EVENT ADD")
@@ -176,6 +220,49 @@ export default function Home() {
       postData(i, teamEventCards[i]);
     }
   }, [teamEventCards])
+
+  useEffect(() => {
+    // Whenever protectStack changes, check if length > 0 and show popup
+    console.log("Stack is not Empty!!")
+    if (protectStack.length > 0) {
+      setShowPopup(true);  // Show popup when protectStack has items
+    } else {
+      setShowPopup(false); // Hide popup when protectStack is empty
+    }
+  }, [protectStack]);
+
+  useEffect(() => {
+    for (let i = 1; i < 6; i++) {
+      //console.log(`Team : ${i} EiEi`);
+      console.log(`Team : ${i}`)
+      let tmpArray = [...teamEventCards[i]];
+      let arrIndex = []
+      teamEventCards[i].forEach((element,index) => {
+        let ls = element.Defence.split(",");
+        // console.log(ls)
+
+        ls.forEach((checker) => {
+          teamProtectCards[i].forEach((checking) => {
+            if(checker === checking){
+              element['teamId'] = i;
+              setProtectStack([...protectStack,element])
+              // arrIndex.push(index);
+              delData(i, element)
+              return;
+            }
+          })
+        })
+
+      });
+      // console.log(`Team ${i} ${teamProtectCards[i]} ${typeof(teamProtectCards[i])}`)
+      // console.log(teamProtectCards[i])
+      // console.log("Index Remove : ")
+      // arrIndex.sort((a,b)=>a-b)
+      // arrIndex.reverse();
+      // console.log(arrIndex);
+      // delData(i, element)
+    }
+  }, [teamProtectCards,turn])
 
   useEffect(() => {
     let newActive = teamActiveEventCards.map(arr => [...arr]); // Create a deep copy
@@ -188,9 +275,9 @@ export default function Home() {
         }
       });
     }
-    console.log("newActive")
+    // console.log("newActive")
     setTeamActiveEventCards(newActive); // Update the state with the new copy
-    console.log(newActive)
+    // console.log(newActive)
   }, [teamEventCards]);
 
 
@@ -261,8 +348,6 @@ export default function Home() {
     console.log("TEST POP-UP")
     console.log(data);
     setZoomDisplay(data)
-
-
   }
   const handleRemoveElement = (index) => {
     console.log(`Remove Team : ${index}`)
@@ -274,6 +359,12 @@ export default function Home() {
       )
     );
   };
+
+  const handleClosePopUp = () => {
+    setShowPopup(false);
+    setProtectStack([]);
+    setCurrentIndex(0);
+  }
 
   return (
     <div className="h-dvh ">
@@ -328,7 +419,7 @@ export default function Home() {
                     {element.length === 0 && <img className = "rounded-md" src='https://i.ibb.co/V94BZC5/1.jpg' />}
                     {element.length > 0 &&
                       <div className='flex flex-col'>
-                        {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)}
+                        {/* {console.log(`Team : ${index} Size : ${element.length} Data : ${element[0].Name}`)} */}
                         {/* <img src={element[0].ImageURL} onClick={() => { handSetPopup(element[0]) }} /> */}
                         <img className="rounded-md" src={element[0].ImageURL} onClick={() => {document.getElementById('my_modal_1').showModal();handSetPopup(element[0])}} />
                         <button onClick={() => handleRemoveElement(index)} className='bg-red-400 text-white rounded-md'>{'x'}</button>
@@ -383,6 +474,65 @@ export default function Home() {
               </div>
             </div>
           </dialog>
+
+           {/* Popup component */}
+          <Popup open={showPopup} onClose={handleClosePopUp} modal closeOnDocumentClick>
+            <div className="relative w-full max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
+              {/* Modal action (Close button) */}
+              <div className="absolute top-2 right-2">
+                <button
+                  className="btn btn-sm bg-red-500 text-white hover:bg-red-600 p-2 rounded-full"
+                  onClick={handleClosePopUp}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal content */}
+              <div className="flex flex-col items-center p-5">
+                {protectStack.length > 0 && (
+                  <>
+                    <h1 className='text-black text-2xl'>{`Team : ${protectStack[currentIndex].teamId}`}</h1>
+                    <img
+                      src={protectStack[currentIndex].ImageURL}
+                      alt="Card"
+                      className="w-96 mb-4"
+                    />
+                    <p className="text-gray-700">
+                      Protect Card: {protectStack[currentIndex].name} (ID: {protectStack[currentIndex].id})
+                    </p>
+                    <p className="text-gray-700 mb-4">
+                      You are viewing item {currentIndex + 1} of {protectStack.length}
+                    </p>
+                    {/* Next button */}
+                    <button
+                      className={`btn btn-primary ${currentIndex === protectStack.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={handleNext}
+                      disabled={currentIndex === protectStack.length - 1}
+                    >
+                      Next
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </Popup>
+
+
+
 
 
         </div>
