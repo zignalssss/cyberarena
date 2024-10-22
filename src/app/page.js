@@ -61,6 +61,10 @@ export default function Home() {
     [], [], [], [], [], []
   ])
 
+  const [teamDatas,setTeamDatas] = useState([
+    {}, {}, {}, {}, {} , {}
+  ])
+
   const handleNext = () => {
     if (currentIndex < protectStack.length - 1) {
       setCurrentIndex(currentIndex + 1); // Move to the next item
@@ -111,7 +115,16 @@ export default function Home() {
 
   const getProtect = async (index) => {
     try {
+      let tmpData = {}
       const response = await axios.get(`http://localhost:3000/api/team/getteamdetial?teamId=${index}`);
+      tmpData = response.data.data.teamData;
+      tmpData['teamAntiVirus'] = response.data.data.teamAntiVirus;
+      tmpData['teamOs'] = response.data.data.teamOs;
+      let tmps = teamDatas;
+      tmps[index] = tmpData;
+      console.log(`Loading.... team ${index} data`);
+      console.log(tmps)
+      setTeamDatas(tmps);
       return response.data.data.teamProtectCard;  // Return the protect card for the team
     } catch (error) {
       setError(error);  // Handle errors
@@ -188,10 +201,11 @@ export default function Home() {
 
           // console.log(`Before: ${newElemet.Turn}`);
           if (newElemet.Turn == -1) {
-            let ranTurn = Math.floor(Math.random() * 4);
+            let ranTurn = Math.floor(Math.random() * 4)+1;
             newElemet.Turn = ranTurn;
           }
-          newElemet.Turn = newElemet.Turn + turn;
+          // newElemet.Turn = newElemet.Turn + turn;
+          newElemet['start_turn'] = turn;
 
           // console.log(`After: ${newElemet.Turn}`);
           news.push(newElemet);
@@ -205,7 +219,6 @@ export default function Home() {
     }
 
   }, [turn]);
-
 
   const closePopup = () => {
     setShowPopup(false);  // Close the popup
@@ -233,35 +246,83 @@ export default function Home() {
 
   useEffect(() => {
     for (let i = 1; i < 6; i++) {
-      //console.log(`Team : ${i} EiEi`);
-      console.log(`Team : ${i}`)
-      let tmpArray = [...teamEventCards[i]];
-      let arrIndex = []
-      teamEventCards[i].forEach((element,index) => {
+      let arr = [];  // Temporary array for each team
+      console.log(`Team : ${i}`);
+      
+      teamEventCards[i].forEach((element) => {
         let ls = element.Defence.split(",");
-        // console.log(ls)
-
+        console.log(`Team : ${i} Protect By:`);
+        let status = false;
+        let protectList = []
+        
         ls.forEach((checker) => {
-          teamProtectCards[i].forEach((checking) => {
-            if(checker === checking){
-              element['teamId'] = i;
-              setProtectStack([...protectStack,element])
-              // arrIndex.push(index);
-              delData(i, element)
-              return;
-            }
-          })
-        })
+          // Assuming teamProtectCards[i] is an array
+          const found = teamProtectCards[i].find((checking) => checker === checking);
+          
+          if (found) {
+            console.log(found);
+            protectList.push(found);
+            console.log(element['protectBy']);  // Logging correct protectBy
+            element['teamId'] = i;
+            status = true;
+            
+          }
+        });
+        // Loop through `ls` just once
+        ls.forEach((checking) => {
+          if ("Knowledge Level" === checking && !status) {
+            const foundLevelKnowledge = checking;
+            let ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
 
+            // Ensure `teamDatas` and `Knowledge` exist
+            if (teamDatas && teamDatas.Knowledge >= ranLevel) {
+              console.log(foundLevelKnowledge);
+              protectList.push(`"Knowledge Level : ${ranLevel}`);
+              element['teamId'] = i;
+              status = true;
+            }
+          }
+
+          if ("OS Version" === checking && !status) {
+            const foundOsVersion = checking;
+            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+
+            // Ensure `teamDatas` and `OS_Version` exist
+            if (teamDatas[i] && teamDatas[i].OS_Version >= ranLevel) {
+              console.log(foundOsVersion);
+              protectList.push(`${teamDatas[i].teamOs} : ${ranLevel}`);
+              element['teamId'] = i;
+              status = true;
+            }
+          }
+
+          if ("Anti-Malware Version" === checking && !status) {
+            const foundAnitVersion = checking;
+            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+
+            // Ensure `teamDatas` and `Anti_Virus_Version` exist
+            if (teamDatas[i] && teamDatas[i].Anti_Virus_Version >= ranLevel) {
+              console.log(foundAnitVersion);
+              protectList.push(`${teamDatas[i].teamAntiVirus} : ${ranLevel}`);
+              element['teamId'] = i;
+              status = true;
+            }
+          }
+        });
+
+        if(status){
+          console.log("protectList");
+          console.log(protectList);
+          element['protectBy'] = protectList;
+          arr.push(element);  // Collect elements for this team
+          console.log(arr)
+          setProtectStack(prevStack => [...prevStack, element]);
+          delData(i, element);  // Assuming this function processes and removes data
+        }
       });
-      // console.log(`Team ${i} ${teamProtectCards[i]} ${typeof(teamProtectCards[i])}`)
-      // console.log(teamProtectCards[i])
-      // console.log("Index Remove : ")
-      // arrIndex.sort((a,b)=>a-b)
-      // arrIndex.reverse();
-      // console.log(arrIndex);
-      // delData(i, element)
-    }
+    
+      // Append all elements for this team to the protectStack
+    }    
   }, [teamProtectCards,turn])
 
   useEffect(() => {
@@ -269,7 +330,7 @@ export default function Home() {
     for (let i = 0; i < 6; i++) {
       //console.log(`Team : ${i} EiEi`);
       teamEventCards[i].forEach((element) => {
-        if (element.Turn === turn) {
+        if (element.Turn+element['start_turn'] === turn) {
           newActive[i].push(element); // Add element to the copy
           delData(i, element)
         }
@@ -428,15 +489,7 @@ export default function Home() {
                   </div>
                 ))
               }
-              {/* <div className='shadow-2xl flex flex-col items-center' onClick={openModal}>
-                <div>All Teams</div>
-                <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" />
-                <div className='flex justify-between gap-2'>
-                  <h1>C: -45</h1>
-                  <h1>I: -35</h1>
-                  <h1>A: -25</h1>
-                </div>
-              </div> */}
+
             </div>
           </div>
 
@@ -462,10 +515,19 @@ export default function Home() {
                   </button>
                 </form>
               </div>
-              <div className='bg-white flex flex-col items-center p-5 rounded-md'>
+              <div className='bg-white flex flex-col items-center p-5 rounded-md text-black'>
                 {/* <div>All Teams</div> */}
                 {/* <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" /> */}
                 <img src={zoomDisplay.ImageURL} alt="Card" className="w-96" />
+                <h1>List of Protect Cards </h1>
+                <p>{ zoomDisplay.Defence}</p>
+                {/* <div className="grid grid-cols-3 gap-2">
+                  {zoomDisplay.Defence.split(',').map((element, index) => (
+                    <div key={index} className="p-3 text-center">{element}</div>
+                  ))}
+                </div> */}
+                {zoomDisplay.IsRoundStack === 1 && <div className='text-black'>จำนวนรอบที่การ์ดใบนี้ทำงาน : {Math.abs(zoomDisplay.start_turn-turn)}</div>}
+                {/* {<div>{zoomDisplay.Turn} {zoomDisplay.start_turn}</div>} */}
                 {/* <div className='flex justify-between gap-8 text-xl mt-4'>
                     <h1>C: -45</h1>
                     <h1>I: -35</h1>
@@ -511,12 +573,17 @@ export default function Home() {
                       alt="Card"
                       className="w-96 mb-4"
                     />
-                    <p className="text-gray-700">
-                      Protect Card: {protectStack[currentIndex].name} (ID: {protectStack[currentIndex].id})
-                    </p>
+                    <div className='text-black text-xl'>Protect By</div>
+                    <div className='text-black'> {
+                      <div className='flex flex-row-3 gap-4'>
+                        {protectStack[currentIndex].protectBy[0]}
+                      </div>
+                      }</div>
                     <p className="text-gray-700 mb-4">
                       You are viewing item {currentIndex + 1} of {protectStack.length}
                     </p>
+                    {protectStack[currentIndex].IsRoundStack === 1 && <div className='text-black'>จำนวนรอบที่การ์ดใบนี้ทำงานก่อนโดนป้องกัน : {Math.abs(protectStack[currentIndex].start_turn-turn)}</div>}
+                    {/* {console.log(protectStack[currentIndex].protectBy)} */}
                     {/* Next button */}
                     <button
                       className={`btn btn-primary ${currentIndex === protectStack.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
