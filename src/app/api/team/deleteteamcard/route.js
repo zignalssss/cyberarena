@@ -10,12 +10,12 @@ export async function POST(req) {
         console.log(`Card to delete: ${cardId}`);
 
         // Ensure teamId and cardId are provided and are numbers
-        if (!teamId || !cardId) {
-            return new Response(JSON.stringify({ message: 'teamId and cardId are required' }), {
-                status: 400,  // Bad request
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
+        // if (!teamId || !cardId) {
+        //     return new Response(JSON.stringify({ message: 'teamId and cardId are required' }), {
+        //         status: 400,  // Bad request
+        //         headers: { 'Content-Type': 'application/json' }
+        //     });
+        // }
 
         // Connect to the MongoDB database
         const client = await clientPromise;
