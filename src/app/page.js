@@ -32,8 +32,8 @@ export default function Home() {
     "Establish Clear IT Policies"
   ];
 
-
-
+  const randType = ["Password Spraying","Privilege Escalation","Phishing or Social_Engineering","MITM_Attack","Malware,Zero_Day_Exploit"];
+  const randDefence = ["Strong Password,Account Lockout,MFA","OS Version,MFA,Least Privilege,Access Control Monitoring","Knowledge Level","VPN,DNSSEC,MFA","Anti-Malware Version,Firewall","IDS/IPS,OS Version,Network Segmentation"];
 
   const [open, setOpen] = useState(false);
 
@@ -202,6 +202,9 @@ export default function Home() {
           // console.log(`Before: ${newElemet.Turn}`);
           if (newElemet.Turn == -1) {
             let ranTurn = Math.floor(Math.random() * 4)+1;
+            let randIntType = Math.floor(Math.random()*5);
+            newElemet.Type = randType[randIntType];
+            newElemet.Defence = randDefence[randIntType];
             newElemet.Turn = ranTurn;
           }
           // newElemet.Turn = newElemet.Turn + turn;
