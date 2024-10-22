@@ -87,7 +87,7 @@ export default function Home() {
 
   const postDataLevel = async () => {
     try {
-        const response = await axios.post('http://cyberarena.vercel.app/api/team/updateteam', {
+        const response = await axios.post('/api/team/updateteam', {
         teamId: 0,
         teamData : dataLevel,
         // teamProtectCard: [] // Empty array for teamevent
@@ -101,7 +101,7 @@ export default function Home() {
 
   const postData = async (index, list) => {
     try {
-      const response = await axios.post('http://cyberarena.vercel.app/api/team/updateteam', {
+      const response = await axios.post('/api/team/updateteam', {
         teamId: index,
         teamEventCards: list
         // teamProtectCard: [] // Empty array for teamevent
@@ -116,7 +116,7 @@ export default function Home() {
   const getProtect = async (index) => {
     try {
       let tmpData = {}
-      const response = await axios.get(`http://cyberarena.vercel.app/api/team/getteamdetial?teamId=${index}`);
+      const response = await axios.get(`/api/team/getteamdetial?teamId=${index}`);
       tmpData = response.data.data.teamData;
       tmpData['teamAntiVirus'] = response.data.data.teamAntiVirus;
       tmpData['teamOs'] = response.data.data.teamOs;
@@ -149,7 +149,7 @@ export default function Home() {
 
   const delData = async (teamIndex, data) => {
     try {
-      const response = await axios.post('http://cyberarena.vercel.app/api/team/deleteteamcard', {
+      const response = await axios.post('/api/team/deleteteamcard', {
         teamId: teamIndex, // Assuming teamIndex corresponds to the team
         delcard: data
       });
@@ -179,7 +179,7 @@ export default function Home() {
 
   useEffect(() => {
     // Making a request to an external API
-    axios.get('http://cyberarena.vercel.app/api/card/getcard')
+    axios.get('/api/card/getcard')
       .then(response => {
         setAllCard(response.data); // Set the data from the API
         // console.log(response.data);

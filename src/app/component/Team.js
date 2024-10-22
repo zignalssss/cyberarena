@@ -47,7 +47,7 @@ export default function Team(props) {
 
     const postDataLevel = async () => {
         try {
-            const response = await axios.post('http://cyberarena.vercel.app/api/team/updateteam', {
+            const response = await axios.post('/api/team/updateteam', {
             teamId: props.id,
             teamData : teamData,
             teamOs : selectedOS,
@@ -63,7 +63,7 @@ export default function Team(props) {
 
     const postDataProtect = async () => {
         try {
-            const response = await axios.post('http://cyberarena.vercel.app/api/team/updateteam', {
+            const response = await axios.post('/api/team/updateteam', {
             teamId: props.id,
             teamProtectCard : teamOptions
             // teamProtectCard: [] // Empty array for teamevent
