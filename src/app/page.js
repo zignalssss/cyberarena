@@ -210,6 +210,21 @@ export default function Home() {
           // newElemet.Turn = newElemet.Turn + turn;
           newElemet['start_turn'] = turn;
 
+          let tmplist = newElemet.Defence.split(',');
+          tmplist.forEach((data) => {
+            if(data === 'Knowledge Level'){
+              // let ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
+              newElemet['version_check'] =  -1;
+            }
+            else if(data === 'OS Version'){
+              // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+              newElemet['version_check'] =  -1;
+            }
+            else if(data === 'Anti-Malware Version'){
+              // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+              newElemet['version_check'] =  -1;
+            }
+          })
           // console.log(`After: ${newElemet.Turn}`);
           news.push(newElemet);
           newTeamEventCards[i] = news; // Update the specific team list with the new element
@@ -259,6 +274,7 @@ export default function Home() {
         let protectList = []
         
         ls.forEach((checker) => {
+          
           // Assuming teamProtectCards[i] is an array
           const found = teamProtectCards[i].find((checking) => checker === checking);
           
@@ -273,10 +289,18 @@ export default function Home() {
         });
         // Loop through `ls` just once
         ls.forEach((checking) => {
+
+                  // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+              // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+
           if ("Knowledge Level" === checking && !status) {
             const foundLevelKnowledge = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
-
+            let ranLevel = element['version_check'];
+            console.log("Check Version")
+            console.log(ranLevel);
+            if(ranLevel === -1){
+              ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
+            }
             // Ensure `teamDatas` and `Knowledge` exist
             if (teamDatas && teamDatas.Knowledge >= ranLevel) {
               console.log(foundLevelKnowledge);
@@ -288,8 +312,14 @@ export default function Home() {
 
           if ("OS Version" === checking && !status) {
             const foundOsVersion = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+            // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+            let ranLevel = element['version_check'];
+            console.log("Check Version")
+            console.log(ranLevel);
 
+            if(ranLevel === -1){
+              ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+            }
             // Ensure `teamDatas` and `OS_Version` exist
             if (teamDatas[i] && teamDatas[i].OS_Version >= ranLevel) {
               console.log(foundOsVersion);
@@ -301,8 +331,14 @@ export default function Home() {
 
           if ("Anti-Malware Version" === checking && !status) {
             const foundAnitVersion = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+            // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+            console.log("Check Version")
 
+            let ranLevel = element['version_check'];
+            console.log(ranLevel);
+            if(ranLevel === -1){
+              ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+            }
             // Ensure `teamDatas` and `Anti_Virus_Version` exist
             if (teamDatas[i] && teamDatas[i].Anti_Virus_Version >= ranLevel) {
               console.log(foundAnitVersion);
@@ -413,16 +449,18 @@ export default function Home() {
     console.log(data);
     setZoomDisplay(data)
   }
-  const handleRemoveElement = (index) => {
-    console.log(`Remove Team : ${index}`)
-    setTeamActiveEventCards(prevState =>
-      prevState.map((element, i) =>
-        i === index && element.length > 0
-          ? element.slice(1) // Remove the first element if length > 0
-          : element // Keep the same element otherwise
-      )
-    );
+  const handleRemoveElement = (teamIndex) => {
+    let memberIndex = 0;
+    console.log(`Remove Member: ${memberIndex} from Team: ${teamIndex}`);
+    // Create a deep copy of the 2D array
+    let tmp = teamActiveEventCards.map(team => [...team]);
+    // Remove the specific element from the sub-array
+    tmp[teamIndex].splice(memberIndex, 1);
+    // Update the state with the modified 2D array
+    setTeamActiveEventCards(tmp);
   };
+  
+  
 
   const handleClosePopUp = () => {
     setShowPopup(false);
@@ -522,6 +560,7 @@ export default function Home() {
                 {/* <div>All Teams</div> */}
                 {/* <img src='https://i.ibb.co/BPbs6Yq/37.jpg' alt="Card" className="w-96" /> */}
                 <img src={zoomDisplay.ImageURL} alt="Card" className="w-96" />
+                {<h1>Type : {zoomDisplay.Type}</h1>}
                 <h1>List of Protect Cards </h1>
                 <p>{ zoomDisplay.Defence}</p>
                 {/* <div className="grid grid-cols-3 gap-2">
@@ -567,7 +606,7 @@ export default function Home() {
               </div>
 
               {/* Modal content */}
-              <div className="flex flex-col items-center p-5">
+              <div className="flex flex-col items-center p-5 text-black">
                 {protectStack.length > 0 && (
                   <>
                     <h1 className='text-black text-2xl'>{`Team : ${protectStack[currentIndex].teamId}`}</h1>
@@ -576,6 +615,7 @@ export default function Home() {
                       alt="Card"
                       className="w-96 mb-4"
                     />
+                    {<h1>Type : {protectStack[currentIndex].Type}</h1>}
                     <div className='text-black text-xl'>Protect By</div>
                     <div className='text-black'> {
                       <div className='flex flex-row-3 gap-4'>
