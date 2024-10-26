@@ -172,13 +172,7 @@ export default function Home() {
     }
   };
 
-
-  useEffect(() => {
-    postDataLevel();
-  }, [dataLevel])
-
-  useEffect(() => {
-    // Making a request to an external API
+  const getCards = () => {
     axios.get('/api/card/getcard')
       .then(response => {
         setAllCard(response.data); // Set the data from the API
@@ -187,66 +181,71 @@ export default function Home() {
       .catch(error => {
         setError(error); // Handle errors
       });
+  }
+
+  useEffect(() => {
+    postDataLevel();
+  }, [dataLevel])
+
+  useEffect(() => {
+    // Making a request to an external API
+    getCards();
+    
   }, []);
   // console.log("This is TEAM DATA:")
   // console.log(teamEventCards);
   useEffect(() => {
     if (allCard.data) {
-      const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
-      for (let i = 0; i < 6; i++) {
-        let randDomIndex = Math.floor(Math.random() * countCard);
-        if (allCard.data) {
-          let newElemet = allCard.data[randDomIndex];
-          let news = [...newTeamEventCards[i]]; // Copy the individual team's event cards array
-
-          // console.log(`Before: ${newElemet.Turn}`);
-          if (newElemet.Turn == -1) {
-            let ranTurn = Math.floor(Math.random() * 4)+1;
-            let randIntType = Math.floor(Math.random()*5);
-            newElemet.Type = randType[randIntType];
-            newElemet.Defence = randDefence[randIntType];
-            newElemet.Turn = ranTurn;
-          }
-          // newElemet.Turn = newElemet.Turn + turn;
-          newElemet['start_turn'] = turn;
-          let ls = newElemet.Defence.split(",");
-
-          ls.forEach((checking) => {
-            if ("Knowledge Level" === checking) {
-              // const foundLevelKnowledge = checking;
-              // let ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
-              newElemet['version'] = -1;
-  
-            }
-  
-            if ("OS Version" === checking) {
-              // const foundOsVersion = checking;
-              // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
-              newElemet['version'] = -1;
-              
-            }
-  
-            if ("Anti-Malware Version" === checking) {
-              // const foundAnitVersion = checking;
-              // let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
-              newElemet['version'] = -1;
-            }
-          });
-
-
-          // console.log(`After: ${newElemet.Turn}`);
-          news.push(newElemet);
-          newTeamEventCards[i] = news; // Update the specific team list with the new element
-        }
+      console.log("All Cards");
+      console.log(allCard.data.length);
+    
+      if (allCard.data.length < 10) {
+        getCards();
       }
-      // console.log("NEW DATA:")
-      // console.log(newTeamEventCards)
+      const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
+  
+      for (let i = 0; i < 6; i++) {
+        // Remove a random card from allCard.data
+        let randDomIndex = Math.floor(Math.random() * allCard.data.length);
+        let newElemet = allCard.data[randDomIndex];
+        
+        // Remove the selected card from allCard.data
+        allCard.data.splice(randDomIndex, 1);
+  
+        let news = [...newTeamEventCards[i]]; // Copy the individual team's event cards array
+  
+        if (newElemet.Turn === -1) {
+          let ranTurn = Math.floor(Math.random() * 4) + 1;
+          let randIntType = Math.floor(Math.random() * 5);
+          newElemet.Type = randType[randIntType];
+          newElemet.Defence = randDefence[randIntType];
+          newElemet.Turn = ranTurn;
+        }
+  
+        newElemet['start_turn'] = turn;
+        let ls = newElemet.Defence.split(",");
+  
+        ls.forEach((checking) => {
+          if (checking === "Knowledge Level") {
+            newElemet['version'] = -1;
+          }
+          if (checking === "OS Version") {
+            newElemet['version'] = -1;
+          }
+          if (checking === "Anti-Malware Version") {
+            newElemet['version'] = -1;
+          }
+        });
+  
+        news.push(newElemet);
+        newTeamEventCards[i] = news; // Update the specific team list with the new element
+      }
+  
       setTeamEventCards(newTeamEventCards); // Update the state with the new copy
       fetchAllProtectCards();
     }
-
   }, [turn]);
-
+  
   const closePopup = () => {
     setShowPopup(false);  // Close the popup
   };
@@ -574,7 +573,10 @@ export default function Home() {
           </dialog>
 
            {/* Popup component */}
-          <Popup open={showPopup} onClose={handleClosePopUp} modal closeOnDocumentClick>
+          <Popup open={showPopup} 
+            // onClose={handleClosePopUp} 
+            modal closeOnDocumentClick
+            >
             <div className="relative w-full max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
               {/* Modal action (Close button) */}
               <div className="absolute top-2 right-2">
