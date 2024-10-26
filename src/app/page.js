@@ -199,7 +199,7 @@ export default function Home() {
       console.log("All Cards");
       console.log(allCard.data.length);
     
-      if (allCard.data.length < 10) {
+      if (allCard.data.length < 20) {
         getCards();
       }
       const newTeamEventCards = [...teamEventCards]; // Create a copy of teamEventCards
@@ -298,7 +298,12 @@ export default function Home() {
         ls.forEach((checking) => {
           if ("Knowledge Level" === checking && !status) {
             const foundLevelKnowledge = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel.Knowledge - 1)) + 1;
+            // let ranLevel = Math.round(Math.random() * (dataLevel.Knowledge - 1)) + 1;
+            let ranLevel = Math.floor(Math.floor(Math.random()*10)/(9/dataLevel.Knowledge))+1;
+
+
+            console.log(ranLevel)
+
             if(element['version'] === -1){
               element['version'] = ranLevel;
             }
@@ -313,7 +318,10 @@ export default function Home() {
 
           if ("OS Version" === checking && !status) {
             const foundOsVersion = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamOs] - 1)) + 1;
+
+            // let ranLevel = Math.round(Math.random() * (dataLevel[teamDatas[i].teamOs] - 1)) + 1;
+            let ranLevel = Math.floor(Math.floor(Math.random()*10)/(Math.floor(9)/dataLevel[teamDatas[i].teamOs]))+1;
+            console.log(ranLevel)
             if(element['version'] === -1){
               element['version'] = ranLevel;
             }
@@ -329,7 +337,11 @@ export default function Home() {
 
           if ("Anti-Malware Version" === checking && !status) {
             const foundAnitVersion = checking;
-            let ranLevel = Math.floor(Math.random() * (dataLevel[teamDatas[i]?.teamAntiVirus] - 1)) + 1;
+            // let ranLevel = Math.round(Math.random() * (dataLevel[teamDatas[i].teamAntiVirus] - 1)) + 1;
+            let ranLevel = Math.floor(Math.floor(Math.random()*10)/Math.floor(9)/dataLevel[teamDatas[i].teamAntiVirus])+1;
+
+            console.log(ranLevel)
+
             if(element['version'] === -1){
               element['version'] = ranLevel;
             }
