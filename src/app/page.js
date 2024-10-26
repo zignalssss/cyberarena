@@ -299,7 +299,7 @@ export default function Home() {
           if ("Knowledge Level" === checking && !status) {
             const foundLevelKnowledge = checking;
             // let ranLevel = Math.round(Math.random() * (dataLevel.Knowledge - 1)) + 1;
-            let ranLevel = Math.floor(Math.floor(Math.random()*10)/Math.floor(9)/dataLevel.Knowledge)+1;
+            let ranLevel = Math.floor(Math.floor(Math.random()*10)/(9/dataLevel.Knowledge))+1;
 
 
             console.log(ranLevel)
